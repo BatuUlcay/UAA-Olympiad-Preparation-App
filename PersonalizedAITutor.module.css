@@ -1,0 +1,135 @@
+/* Styles specific to the AI Tutor */
+.aiTutorContainer { /* Renamed from .ai-tutor-container */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.heading { /* Was .aiTutorContainer h3 */
+  color: #004c5d;
+  font-size: 1.4em;
+  margin-bottom: 5px;
+}
+
+.problemText { /* Renamed from .problem-text */
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+
+.workspaceContainer { /* Renamed from .workspace-container */
+  border: 1px solid #b3e0f2;
+  border-radius: 8px;
+  padding: 15px;
+  background-color: #f0f8ff;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.subHeading { /* Was .workspaceContainer h4 */
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #005f73;
+}
+
+.solutionInputArea textarea { /* Renamed from .solution-input-area textarea */
+  width: calc(100% - 20px);
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #add8e6;
+  font-family: inherit;
+  font-size: 1em;
+  min-height: 100px;
+}
+
+.drawingArea { /* Renamed from .drawing-area */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.drawingArea label { /* Nested selectors */
+  font-weight: bold;
+  color: #334e68;
+}
+
+/* ID selectors like #drawing-canvas cannot be part of CSS modules directly.
+   The element with this ID will be styled by this if it's global,
+   or the ID should be removed and styling applied via a class if it needs to be modular.
+   For now, I'll make it a class, assuming the ID is not strictly needed for JS interaction
+   that couldn't be done with a ref and a class.
+   If ID is essential for JS, then this specific style might need to remain global or be handled differently.
+   Let's convert it to a class: .drawingCanvas
+*/
+.drawingCanvas { /* Converted from #drawing-canvas */
+  border: 1px dashed #79cdf0;
+  border-radius: 6px;
+  cursor: crosshair;
+  touch-action: none;
+  background-color: #ffffff;
+}
+
+.controlsArea { /* Renamed from .controls-area */
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.clearButton {
+  /* Add specific styles for clearButton if any, or leave empty if only for combining classes.
+     For example, if it needed a different margin or padding than a standard secondaryButton in this context.
+     margin-left: auto; /* Example: push to the right if it's the only button in a row */
+}
+
+.hintArea, .feedbackArea { /* Renamed from .hint-area, .feedback-area */
+  margin-top: 15px;
+  padding: 15px;
+  border-radius: 6px;
+  line-height: 1.6;
+}
+
+.hintArea {
+  background-color: #fff3cd;
+  border: 1px solid #ffeeba;
+  color: #856404;
+}
+
+.feedbackArea {
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+}
+
+.feedbackArea pre { /* Nested selector */
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: inherit;
+  font-size: 0.95em;
+}
+
+/* Responsive adjustments for PersonalizedAITutor */
+@media (max-width: 768px) {
+  .heading { /* Was .aiTutorContainer h3 */
+    font-size: 1.2em;
+  }
+  .problemText { /* This was .content-section p in global, now specific to problemText if needed */
+    font-size: 0.95em;
+  }
+  .solutionInputArea textarea { /* Nested */
+    font-size: 0.95em;
+  }
+  .controlsArea { /* This was in global, ensure it's correctly applied or adapted */
+    flex-direction: column;
+  }
+  /* Assuming action-button and secondary-button responsive styles from App.module.css are sufficient.
+     If specific overrides are needed for buttons within AI Tutor on mobile, they'd go here.
+     For example:
+     .actionButton { width: auto; } // If they shouldn't be full width unlike global mobile buttons
+  */
+}

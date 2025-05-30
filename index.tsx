@@ -4,6 +4,10 @@ import ReactDOM from 'react-dom/client';
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 import Chart from 'chart.js/auto';
 
+import appStyles from './App.module.css';
+import tutorStyles from './PersonalizedAITutor.module.css';
+import progressStyles from './ProgressFeedback.module.css';
+
 // Problem Data (taken from the provided PDF)
 const problems = [
   {
@@ -41,6 +45,12 @@ interface Problem {
   topic: string;
 }
 
+/**
+ * @summary Provides an interactive AI-powered tutoring experience for math olympiad problems.
+ * @description This component displays a math problem, allows users to input text and drawing solutions,
+ * request hints, and submit their solutions for feedback from an AI tutor (Gemini API).
+ * It manages state for the current problem, user inputs, hints, and AI-generated feedback.
+ */
 const PersonalizedAITutor: React.FC = () => {
   const [currentProblem, setCurrentProblem] = useState<Problem>(problems[0]);
   const [userTextSolution, setUserTextSolution] = useState<string>("");
@@ -56,11 +66,18 @@ const PersonalizedAITutor: React.FC = () => {
 
   const ai = useRef<GoogleGenAI | null>(null);
 
+  /**
+   * @summary Initializes the GoogleGenAI client.
+   * @effect Creates a new GoogleGenAI instance if API_KEY is available in environment variables.
+   * Sets an error message in feedbackText if the API key is not found.
+   */
   useEffect(() => {
-    if (process.env.API_KEY) {
-      ai.current = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    // Vite specific environment variable for API Key
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY as string | undefined;
+    if (apiKey) {
+      ai.current = new GoogleGenAI({ apiKey });
     } else {
-      console.error("API_KEY environment variable not set. AI features will be disabled.");
+      console.error("VITE_GEMINI_API_KEY environment variable not set. AI features will be disabled.");
       setFeedbackText("AI Tutor is currently unavailable: API Key not configured.");
     }
   }, []);
@@ -70,6 +87,11 @@ const PersonalizedAITutor: React.FC = () => {
     return canvas ? canvas.getContext('2d') : null;
   }, []);
 
+  /**
+   * @summary Handles the start of a drawing action on the canvas.
+   * @param {React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>} e - The mouse or touch event.
+   * @effect Sets `isDrawing` ref to true and records the starting position.
+   */
   const startDrawing = useCallback((e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     const ctx = getCanvasContext();
     if (!ctx) return;
@@ -80,6 +102,11 @@ const PersonalizedAITutor: React.FC = () => {
     }
   }, [getCanvasContext]);
 
+  /**
+   * @summary Handles the drawing action on the canvas as the mouse or touch moves.
+   * @param {React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>} e - The mouse or touch event.
+   * @effect Draws a line from the last recorded position to the current event position.
+   */
   const draw = useCallback((e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     if (!isDrawing.current) return;
     const ctx = getCanvasContext();
@@ -97,6 +124,10 @@ const PersonalizedAITutor: React.FC = () => {
     lastPos.current = pos;
   }, [getCanvasContext]);
 
+  /**
+   * @summary Handles the end of a drawing action on the canvas.
+   * @effect Sets `isDrawing` ref to false, clears `lastPos`, and updates `drawingDataUrl` with the canvas content.
+   */
   const stopDrawing = useCallback(() => {
     isDrawing.current = false;
     lastPos.current = null;
@@ -105,6 +136,11 @@ const PersonalizedAITutor: React.FC = () => {
     }
   }, []);
   
+  /**
+   * @summary Calculates the mouse/touch position relative to the canvas.
+   * @param {React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>} e - The mouse or touch event.
+   * @returns {{x: number, y: number} | null} The coordinates relative to the canvas, or null if canvas is not available.
+   */
   const getMousePos = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return null;
@@ -123,7 +159,10 @@ const PersonalizedAITutor: React.FC = () => {
     };
   };
 
-
+  /**
+   * @summary Clears the drawing canvas.
+   * @effect Clears the canvas content and resets `drawingDataUrl` to null.
+   */
   const clearCanvas = () => {
     const ctx = getCanvasContext();
     if (ctx && canvasRef.current) {
@@ -132,6 +171,10 @@ const PersonalizedAITutor: React.FC = () => {
     }
   };
 
+  /**
+   * @summary Provides the next available hint for the current problem.
+   * @effect Updates `hintText` and `currentHintIndex` state.
+   */
   const handleGetHint = () => {
     if (currentHintIndex < currentProblem.hints.length - 1) {
       const newHintIndex = currentHintIndex + 1;
@@ -142,6 +185,13 @@ const PersonalizedAITutor: React.FC = () => {
     }
   };
 
+  /**
+   * @summary Submits the user's solution (text and/or drawing) to the AI for feedback.
+   * @description Constructs a prompt with the problem, correct solution, and student's attempt.
+   * Sends this to the Gemini API and updates `feedbackText` with the response.
+   * Manages `isLoadingFeedback` state.
+   * @async
+   */
   const handleSubmitSolution = async () => {
     if (!ai.current) {
       setFeedbackText("AI Tutor is currently unavailable: API Key not configured.");
@@ -205,6 +255,10 @@ Provide constructive criticism, highlight strong points, and suggest areas for i
     }
   };
   
+  /**
+   * @summary Sets the initial width and height of the drawing canvas based on its parent container.
+   * @effect Resizes the canvas element. This runs once on component mount.
+   */
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
@@ -216,13 +270,13 @@ Provide constructive criticism, highlight strong points, and suggest areas for i
 
 
   return (
-    <div className="ai-tutor-container">
-      <h3>{currentProblem.title}</h3>
-      <p className="problem-text" role="document" aria-live="polite">{currentProblem.text}</p>
+    <div className={tutorStyles.aiTutorContainer}>
+      <h3 className={tutorStyles.heading}>{currentProblem.title}</h3> {/* Assuming .heading or similar for h3 if specific styles applied beyond tag */ }
+      <p className={tutorStyles.problemText} role="document" aria-live="polite">{currentProblem.text}</p>
       
-      <div className="workspace-container">
-        <h4>Your Workspace</h4>
-        <div className="solution-input-area">
+      <div className={tutorStyles.workspaceContainer}>
+        <h4 className={tutorStyles.subHeading}>Your Workspace</h4> {/* Assuming .subHeading or similar for h4 */ }
+        <div className={tutorStyles.solutionInputArea}>
           <label htmlFor="text-solution">Type your solution:</label>
           <textarea
             id="text-solution"
@@ -233,10 +287,11 @@ Provide constructive criticism, highlight strong points, and suggest areas for i
             aria-label="Text solution input area"
           />
         </div>
-        <div className="drawing-area">
+        <div className={tutorStyles.drawingArea}>
           <label htmlFor="drawing-canvas">Sketch your ideas (optional):</label>
           <canvas
-            id="drawing-canvas"
+            id="drawing-canvas" // ID can remain for JS hooks like ref
+            className={tutorStyles.drawingCanvas} // Apply class for styling
             ref={canvasRef}
             onMouseDown={startDrawing}
             onMouseMove={draw}
@@ -247,21 +302,21 @@ Provide constructive criticism, highlight strong points, and suggest areas for i
             onTouchEnd={stopDrawing}
             aria-label="Drawing canvas for sketching solutions"
           />
-          <button onClick={clearCanvas} className="secondary-button" aria-label="Clear drawing canvas">Clear Drawing</button>
+          <button onClick={clearCanvas} className={`${appStyles.secondaryButton} ${tutorStyles.clearButton}`} aria-label="Clear drawing canvas">Clear Drawing</button> {/* Example of combining module styles if needed, or just one */}
         </div>
       </div>
 
-      <div className="controls-area">
+      <div className={tutorStyles.controlsArea}>
         <button 
           onClick={handleGetHint} 
-          className="secondary-button"
+          className={appStyles.secondaryButton}
           aria-controls="hint-display-area"
         >
           Get Hint
         </button>
         <button 
           onClick={handleSubmitSolution} 
-          className="action-button" 
+          className={appStyles.actionButton}
           disabled={isLoadingFeedback}
           aria-controls="feedback-display-area"
         >
@@ -270,13 +325,13 @@ Provide constructive criticism, highlight strong points, and suggest areas for i
       </div>
 
       {hintText && (
-        <div id="hint-display-area" className="hint-area" role="alert">
+        <div id="hint-display-area" className={tutorStyles.hintArea} role="alert">
           <strong>Hint:</strong> {hintText}
         </div>
       )}
 
       {feedbackText && (
-        <div id="feedback-display-area" className="feedback-area" role="alert">
+        <div id="feedback-display-area" className={tutorStyles.feedbackArea} role="alert">
           <strong>AI Tutor Feedback:</strong>
           <pre>{feedbackText}</pre>
         </div>
@@ -292,6 +347,12 @@ interface ProgressEntry {
   topic: string;
 }
 
+/**
+ * @summary Displays user's progress through charts and provides AI-generated summaries.
+ * @description This component visualizes problem-solving accuracy overall and by topic using Chart.js.
+ * It also allows users to request an AI-generated summary of their performance from the Gemini API.
+ * Manages state for progress data, AI summary, and loading states.
+ */
 const ProgressFeedback: React.FC = () => {
   const [progressData, setProgressData] = useState<ProgressEntry[]>([]);
   const [aiSummary, setAiSummary] = useState<string>("");
@@ -304,15 +365,25 @@ const ProgressFeedback: React.FC = () => {
   
   const ai = useRef<GoogleGenAI | null>(null);
 
+  /**
+   * @summary Initializes the GoogleGenAI client for the ProgressFeedback component.
+   * @effect Creates a new GoogleGenAI instance if API_KEY is available. Logs an error if not.
+   */
   useEffect(() => {
-    if (process.env.API_KEY) {
-      ai.current = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    // Vite specific environment variable for API Key
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY as string | undefined;
+    if (apiKey) {
+      ai.current = new GoogleGenAI({ apiKey });
     } else {
-      console.error("API_KEY environment variable not set for ProgressFeedback. AI features will be disabled.");
+      console.error("VITE_GEMINI_API_KEY environment variable not set for ProgressFeedback. AI features will be disabled.");
     }
   }, []);
 
-  // Mock data for 10 correctly answered problems
+  /**
+   * @summary Loads mock progress data on component mount.
+   * @effect Populates `progressData` state with sample data.
+   * TODO: Replace with actual progress data fetching or integration.
+   */
   useEffect(() => {
     const mockData: ProgressEntry[] = problems.slice(0, 10).map(p => ({
       problemId: p.id,
@@ -323,6 +394,11 @@ const ProgressFeedback: React.FC = () => {
     setProgressData(mockData);
   }, []);
 
+  /**
+   * @summary Renders or updates the overall accuracy doughnut chart.
+   * @description Uses Chart.js to display the distribution of correct, incorrect, and partial answers.
+   * @effect Creates or updates a Chart.js instance referenced by `accuracyChartInstance`.
+   */
   const renderAccuracyChart = useCallback(() => {
     if (!accuracyChartRef.current || progressData.length === 0) return;
 
@@ -360,6 +436,11 @@ const ProgressFeedback: React.FC = () => {
     });
   }, [progressData]);
 
+  /**
+   * @summary Renders or updates the performance by topic bar chart.
+   * @description Uses Chart.js to display the percentage of correct answers for each topic.
+   * @effect Creates or updates a Chart.js instance referenced by `topicChartInstance`.
+   */
   const renderTopicChart = useCallback(() => {
     if (!topicChartRef.current || progressData.length === 0) return;
 
@@ -408,6 +489,11 @@ const ProgressFeedback: React.FC = () => {
     });
   }, [progressData]);
 
+  /**
+   * @summary Manages the rendering and cleanup of progress charts.
+   * @effect Calls `renderAccuracyChart` and `renderTopicChart` when `progressData` changes.
+   * Cleans up Chart.js instances on component unmount.
+   */
   useEffect(() => {
     renderAccuracyChart();
     renderTopicChart();
@@ -419,6 +505,12 @@ const ProgressFeedback: React.FC = () => {
     }
   }, [progressData, renderAccuracyChart, renderTopicChart]);
 
+  /**
+   * @summary Fetches an AI-generated summary of the student's progress.
+   * @description Constructs a prompt with the student's performance data and sends it to the Gemini API.
+   * Updates `aiSummary` with the response. Manages `isLoadingSummary` state.
+   * @async
+   */
   const handleGetAISummary = async () => {
     if (!ai.current) {
       setAiSummary("AI Advisor is currently unavailable: API Key not configured.");
@@ -470,28 +562,28 @@ Be very positive and motivational. Structure your feedback clearly.`;
   };
 
   return (
-    <div className="progress-feedback-container">
-      <h4>Your Performance Overview</h4>
+    <div className={progressStyles.progressFeedbackContainer}>
+      <h4 className={progressStyles.heading}>Your Performance Overview</h4> {/* Assuming .heading or similar for h4 */}
       {progressData.length > 0 ? (
         <>
-          <div className="charts-container">
-            <div className="chart-wrapper" aria-label="Overall Accuracy Chart">
+          <div className={progressStyles.chartsContainer}>
+            <div className={progressStyles.chartWrapper} aria-label="Overall Accuracy Chart">
               <canvas ref={accuracyChartRef} id="accuracyChart"></canvas>
             </div>
-            <div className="chart-wrapper" aria-label="Performance by Topic Chart">
+            <div className={progressStyles.chartWrapper} aria-label="Performance by Topic Chart">
               <canvas ref={topicChartRef} id="topicChart"></canvas>
             </div>
           </div>
           <button 
             onClick={handleGetAISummary} 
-            className="action-button" 
+            className={appStyles.actionButton}
             disabled={isLoadingSummary}
             aria-controls="ai-summary-display-area"
           >
             {isLoadingSummary ? 'Generating Summary...' : 'Get AI Progress Summary'}
           </button>
           {aiSummary && (
-            <div id="ai-summary-display-area" className="ai-summary-area" role="status">
+            <div id="ai-summary-display-area" className={progressStyles.aiSummaryArea} role="status">
               <strong>AI Advisor Summary:</strong>
               <pre>{aiSummary}</pre>
             </div>
@@ -504,100 +596,38 @@ Be very positive and motivational. Structure your feedback clearly.`;
   );
 };
 
-
+/**
+ * @summary Main application component.
+ * @description Serves as the root component that lays out the different sections of the application,
+ * including the AI Tutor, upcoming events (placeholder), and progress feedback.
+ */
 const App: React.FC = () => {
   return (
+    // The <style> block will be removed
     <>
-      <style>{`
-        /* Existing styles from your screenshot - I'll keep them concise for brevity */
-        .app-wrapper { padding: 20px; display: flex; justify-content: center; }
-        .app-container { width: 100%; max-width: 1000px; margin: 0 auto; background-color: #FFFFFF; border-radius: 12px; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07); display: flex; flex-direction: column; gap: 25px; padding: 25px; }
-        .app-header { background-color: #79cdf0; color: white; padding: 25px; border-radius: 8px; text-align: center; }
-        .app-header h1 { margin: 0; font-size: 2.2em; font-weight: 600; }
-        .content-section { background-color: #e6f7ff; padding: 20px; border-radius: 8px; border: 1px solid #b3e0f2; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .content-section h2 { margin-top: 0; margin-bottom: 15px; color: #005f73; font-size: 1.6em; }
-        .content-section p { color: #334e68; margin-bottom: 15px; font-size: 1.05em; line-height: 1.5; }
-        
-        .action-button { display: inline-block; background-color: #007bff; color: white; padding: 12px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; cursor: pointer; border: none; transition: background-color 0.2s ease-in-out, transform 0.1s ease; }
-        .action-button:hover, .action-button:focus-visible { background-color: #0056b3; transform: translateY(-1px); }
-        .action-button:active { transform: translateY(0px); }
-        .action-button:disabled { background-color: #cccccc; cursor: not-allowed; }
-
-        .ai-tutor-container { display: flex; flex-direction: column; gap: 20px; }
-        .ai-tutor-container h3 { color: #004c5d; font-size: 1.4em; margin-bottom: 5px; }
-        .problem-text { background-color: #f8f9fa; padding: 15px; border-radius: 6px; border: 1px solid #dee2e6; margin-bottom: 15px; line-height: 1.6; }
-        .workspace-container { border: 1px solid #b3e0f2; border-radius: 8px; padding: 15px; background-color: #f0f8ff; display: flex; flex-direction: column; gap: 15px; }
-        .workspace-container h4 { margin-top: 0; margin-bottom: 10px; color: #005f73; }
-        .solution-input-area textarea { width: calc(100% - 20px); padding: 10px; border-radius: 6px; border: 1px solid #add8e6; font-family: inherit; font-size: 1em; min-height: 100px; }
-        .drawing-area { display: flex; flex-direction: column; gap: 10px; }
-        .drawing-area label { font-weight: bold; color: #334e68; }
-        #drawing-canvas { border: 1px dashed #79cdf0; border-radius: 6px; cursor: crosshair; touch-action: none; background-color: #ffffff; }
-        .controls-area { display: flex; gap: 15px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
-        .secondary-button { background-color: #6c757d; color: white; padding: 10px 18px; border-radius: 6px; border:none; cursor:pointer; }
-        .secondary-button:hover, .secondary-button:focus-visible { background-color: #5a6268; }
-        .hint-area, .feedback-area { margin-top: 15px; padding: 15px; border-radius: 6px; line-height: 1.6; }
-        .hint-area { background-color: #fff3cd; border: 1px solid #ffeeba; color: #856404; }
-        .feedback-area { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
-        .feedback-area pre, .ai-summary-area pre { white-space: pre-wrap; word-wrap: break-word; font-family: inherit; font-size: 0.95em; }
-
-        /* Progress & Feedback Section Styles */
-        .progress-feedback-container { display: flex; flex-direction: column; gap: 20px; }
-        .progress-feedback-container h4 { color: #004c5d; font-size: 1.3em; margin-bottom: 10px; }
-        .charts-container { display: flex; flex-direction: row; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
-        .chart-wrapper { 
-            flex: 1; 
-            min-width: 280px; /* Ensure charts are not too small */
-            height: 300px; /* Fixed height for consistency */
-            background-color: #f8f9fa; 
-            padding: 15px; 
-            border-radius: 8px; 
-            border: 1px solid #dee2e6;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
-        }
-        .chart-wrapper canvas { max-height: 100%; }
-        .ai-summary-area {
-          margin-top: 15px;
-          padding: 15px;
-          border-radius: 6px;
-          line-height: 1.6;
-          background-color: #e0e7ff; /* Light purple/blue for AI summary */
-          border: 1px solid #c7d2fe;
-          color: #3730a3;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-          .app-wrapper { padding: 10px; }
-          .app-container { padding: 20px; gap: 20px; }
-          .app-header { padding: 20px; }
-          .app-header h1 { font-size: 1.8em; }
-          .content-section { padding: 15px; }
-          .content-section h2 { font-size: 1.4em; }
-          .ai-tutor-container h3 { font-size: 1.2em; }
-          .content-section p, .problem-text { font-size: 0.95em; }
-          .action-button, .secondary-button { padding: 10px 15px; font-size: 0.95em; width: 100%; /* Stack buttons on mobile */ }
-          .controls-area { flex-direction: column; }
-          .solution-input-area textarea { font-size: 0.95em; }
-          .charts-container { flex-direction: column; } /* Stack charts on mobile */
-          .chart-wrapper { height: 250px; /* Adjust height for mobile */ }
-        }
-      `}</style>
-      <div className="app-wrapper">
-        <div className="app-container" role="main">
-          <header className="app-header" role="banner">
-            <h1>Olympiad Prep AI Assistant</h1>
+      <div className={appStyles.appWrapper}>
+        <div className={appStyles.appContainer} role="main">
+          <header className={appStyles.appHeader} role="banner">
+            {/*<h1>Olympiad Prep AI Assistant</h1> */}
+            {/* For h1, h2, p within appStyles.appHeader or appStyles.contentSection,
+                either their styles are inherited, or they need specific classes from App.module.css,
+                or App.module.css needs to use :global if we want to keep styling plain tags.
+                Let's assume for now that basic tag styling is acceptable or will be handled by applying
+                specific classes to these tags as a refinement step if needed.
+                For example, if appHeader h1 had specific font, it would be <h1 className={appStyles.appHeaderTitle}> */}
+            <h1 className={appStyles.appHeaderTitle}>Olympiad Prep AI Assistant</h1>
           </header>
           
-          <section className="content-section" id="ai-tutor-section" aria-labelledby="ai-tutor-heading">
-            <h2 id="ai-tutor-heading">Personalized AI Tutor</h2>
+          <section className={appStyles.contentSection} id="ai-tutor-section" aria-labelledby="ai-tutor-heading">
+            <h2 className={appStyles.contentSectionTitle} id="ai-tutor-heading">Personalized AI Tutor</h2>
             <PersonalizedAITutor />
           </section>
 
-          <section className="content-section" id="olympiad-events-section" aria-labelledby="olympiad-events-heading">
-            <h2 id="olympiad-events-heading">Upcoming Olympiads</h2>
-            <p>Discover local and national Olympiad events. Sign up and track your participation. (Event data will be mocked initially).</p>
+          <section className={appStyles.contentSection} id="olympiad-events-section" aria-labelledby="olympiad-events-heading">
+            <h2 className={appStyles.contentSectionTitle} id="olympiad-events-heading">Upcoming Olympiads</h2>
+            <p className={appStyles.contentSectionParagraph}>Discover local and national Olympiad events. Sign up and track your participation. (Event data will be mocked initially).</p>
             <button 
-              className="action-button" 
+              className={appStyles.actionButton}
               onClick={() => alert('Event Sign-up feature is coming soon!')}
               aria-describedby="olympiad-events-section"
             >
@@ -605,8 +635,8 @@ const App: React.FC = () => {
             </button>
           </section>
 
-          <section className="content-section" id="feedback-section" aria-labelledby="feedback-heading">
-            <h2 id="feedback-heading">My Progress &amp; Feedback</h2>
+          <section className={appStyles.contentSection} id="feedback-section" aria-labelledby="feedback-heading">
+            <h2 className={appStyles.contentSectionTitle} id="feedback-heading">My Progress &amp; Feedback</h2>
             <ProgressFeedback />
           </section>
         </div>
@@ -626,3 +656,4 @@ if (rootElement) {
 } else {
   console.error('Critical: Root element #root not found in HTML. Application cannot start.');
 }
+// The <style> block has been removed.
