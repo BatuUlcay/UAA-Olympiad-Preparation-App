@@ -1,0 +1,6 @@
+{
+  "name": "Olympiad Prep AI Assistant",
+  "description": "An application for Olympiad preparation featuring personalized AI agents, event sign-ups (mocked), and AI-driven feedback on results. Uses the Gemini API for AI capabilities.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
