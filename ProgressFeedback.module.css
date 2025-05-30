@@ -1,0 +1,65 @@
+/* Progress & Feedback Section Styles */
+.progressFeedbackContainer { /* Renamed from .progress-feedback-container */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.heading { /* Was .progressFeedbackContainer h4 */
+  color: #004c5d;
+  font-size: 1.3em;
+  margin-bottom: 10px;
+}
+
+.chartsContainer { /* Renamed from .charts-container */
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.chartWrapper { /* Renamed from .chart-wrapper */
+  flex: 1;
+  min-width: 280px; /* Ensure charts are not too small */
+  height: 300px; /* Fixed height for consistency */
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+
+.chartWrapper canvas { /* Nested selector - this will apply to any canvas inside chartWrapper */
+  max-height: 100%;
+}
+
+.aiSummaryArea { /* Renamed from .ai-summary-area */
+  margin-top: 15px;
+  padding: 15px;
+  border-radius: 6px;
+  line-height: 1.6;
+  background-color: #e0e7ff; /* Light purple/blue for AI summary */
+  border: 1px solid #c7d2fe;
+  color: #3730a3;
+}
+
+.aiSummaryArea pre { /* Nested selector */
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: inherit;
+  font-size: 0.95em;
+}
+
+/* Responsive adjustments for ProgressFeedback */
+@media (max-width: 768px) {
+  .chartsContainer {
+    flex-direction: column; /* Stack charts on mobile */
+  }
+  .chartWrapper {
+    height: 250px; /* Adjust height for mobile */
+  }
+  /* Assuming action-button responsive styles from App.module.css are sufficient if used here.
+     If specific overrides are needed for buttons within ProgressFeedback on mobile, they'd go here.
+  */
+}

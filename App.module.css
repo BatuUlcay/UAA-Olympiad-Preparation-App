@@ -1,0 +1,135 @@
+/* General app layout styles */
+.appWrapper { /* Renamed from .app-wrapper for camelCase convention */
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.appContainer { /* Renamed from .app-container */
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  background-color: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  padding: 25px;
+}
+
+.appHeader { /* Renamed from .app-header */
+  background-color: #79cdf0;
+  color: white;
+  padding: 25px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+/* Was: .appHeader h1 - now a dedicated class */
+.appHeaderTitle {
+  margin: 0;
+  font-size: 2.2em;
+  font-weight: 600;
+  color: inherit; /* Inherits color from .appHeader (white) */
+}
+
+.contentSection { /* Renamed from .content-section */
+  background-color: #e6f7ff;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #b3e0f2;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Was: .contentSection h2 - now a dedicated class */
+.contentSectionTitle {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #005f73;
+  font-size: 1.6em;
+}
+
+/* Was: .contentSection p - now a dedicated class */
+.contentSectionParagraph {
+  color: #334e68;
+  margin-bottom: 15px;
+  font-size: 1.05em;
+  line-height: 1.5;
+}
+
+/* Utility classes */
+.actionButton { /* Renamed from .action-button */
+  display: inline-block;
+  background-color: #007bff;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s ease-in-out, transform 0.1s ease;
+}
+
+.actionButton:hover, .actionButton:focus-visible {
+  background-color: #0056b3;
+  transform: translateY(-1px);
+}
+
+.actionButton:active {
+  transform: translateY(0px);
+}
+
+.actionButton:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.secondaryButton { /* Renamed from .secondary-button */
+  background-color: #6c757d;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 6px;
+  border:none;
+  cursor:pointer;
+}
+
+.secondaryButton:hover, .secondaryButton:focus-visible {
+  background-color: #5a6268;
+}
+
+/* Responsive adjustments - Global ones or those related to App structure */
+@media (max-width: 768px) {
+  .appWrapper {
+    padding: 10px;
+  }
+  .appContainer {
+    padding: 20px;
+    gap: 20px;
+  }
+  .appHeader {
+    padding: 20px;
+  }
+  .appHeaderTitle { /* Responsive style for appHeaderTitle */
+    font-size: 1.8em;
+  }
+  .contentSection {
+    padding: 15px;
+  }
+  .contentSectionTitle { /* Responsive style for contentSectionTitle */
+    font-size: 1.4em;
+  }
+  .contentSectionParagraph { /* Responsive style for contentSectionParagraph */
+    font-size: 0.95em;
+  }
+  /* Styles for actionButton and secondaryButton under this media query are tricky with modules
+     if they are used by other components. For now, applying general responsive behavior.
+     If a button in PersonalizedAITutor needs different mobile styling, it should go in its own module.
+  */
+  .actionButton, .secondaryButton { /* This rule will apply to all buttons using these module classes */
+    padding: 10px 15px;
+    font-size: 0.95em;
+    width: 100%; /* Stack buttons on mobile */
+  }
+}
