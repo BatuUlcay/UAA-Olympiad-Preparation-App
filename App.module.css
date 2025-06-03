@@ -1,28 +1,106 @@
+:global(:root) {
+  --color-background-main: #FFEEEE; /* Light Red for main page background */
+  --color-background-content: #FFF5F5; /* Slightly different light red for content sections */
+  --color-primary-accent: #DC143C;   /* Crimson for headers, primary buttons */
+  --color-secondary-accent: #C70039; /* Darker Crimson for secondary button or hover */
+  --color-text-primary: #333333;     /* Dark gray/black for main text */
+  --color-text-on-primary: #FFFFFF; /* White text for on crimson elements */
+  --color-text-on-secondary: #FFFFFF; /* White text for on darker crimson elements */
+  --color-border: #FDB8B8;           /* Lighter red/pink for borders */
+  --color-card-background: #FFFAFA;  /* Very light red/off-white for cards like problem text */
+  --color-hint-background: #FFF3CD; /* Existing hint, maybe adapt later */
+  --color-hint-text: #856404;       /* Existing hint text */
+  --color-feedback-background: #D4EDDA; /* Existing feedback, maybe adapt later */
+  --color-feedback-text: #155724;     /* Existing feedback text */
+  --color-button-disabled-bg: #cccccc;
+  --color-canvas-border: #F08080; /* Light Coral for canvas border */
+  --color-canvas-background: #FFFFFF; /* Keep canvas drawing background white for clarity */
+}
+
 /* General app layout styles */
 .appWrapper { /* Renamed from .app-wrapper for camelCase convention */
-  padding: 20px;
+  padding: 20px; /* This could be a variable too, e.g., --spacing-large */
   display: flex;
-  justify-content: center;
+  flex-direction: column; /* Changed to column to stack topBar and appContainer correctly */
+  align-items: center; /* Center children like topBar and appContainer */
+  /* justify-content: center; This might not be needed if align-items works for centering column children */
 }
 
 .appContainer { /* Renamed from .app-container */
   width: 100%;
   max-width: 1000px;
-  margin: 0 auto;
-  background-color: #FFFFFF;
-  border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+  /* margin: 0 auto; Centering handled by appWrapper flex settings */
+  border-radius: 12px; /* Consider --border-radius-large */
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07); /* Consider --shadow-large */
   display: flex;
   flex-direction: column;
-  gap: 25px;
-  padding: 25px;
+  gap: 25px; /* Consider --spacing-xlarge */
+  padding: 25px; /* Consider --spacing-xlarge */
+  background-color: var(--color-background-main); /* Changed from #FFFFFF to use theme variable */
 }
 
+/* New styles for the top bar */
+.topBar {
+  width: 100%;
+  max-width: 1000px; /* Match appContainer max-width */
+  /* margin: 0 auto; Centering handled by appWrapper flex settings */
+  padding: 5px 10px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  background-color: var(--color-background-main);
+  /* border-bottom: 1px solid var(--color-border); */
+  margin-bottom: 10px; /* Space between topBar and navBar or appHeader if navBar is inside header */
+}
+
+.navBar {
+  display: flex;
+  justify-content: center; /* Center the nav buttons */
+  gap: 10px;
+  padding: 10px 0;
+  background-color: var(--color-background-content);
+  border-top: 1px solid var(--color-border); /* Added top border */
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 20px; /* Space before content sections */
+  width: 100%;
+  max-width: 1000px; /* Match appContainer max-width */
+  /* margin-left: auto; Centering handled by appWrapper flex settings */
+  /* margin-right: auto; */
+}
+
+.navButton {
+  padding: 8px 15px;
+  font-size: 1em;
+  cursor: pointer;
+  background-color: var(--color-card-background);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.navButton:hover {
+  background-color: var(--color-secondary-accent);
+  color: var(--color-text-on-secondary);
+}
+
+.navButtonActive {
+  padding: 8px 15px;
+  font-size: 1em;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.2s, color 0.2s;
+  background-color: var(--color-primary-accent);
+  color: var(--color-text-on-primary);
+  border: 1px solid var(--color-primary-accent);
+}
+
+
 .appHeader { /* Renamed from .app-header */
-  background-color: #79cdf0;
-  color: white;
-  padding: 25px;
-  border-radius: 8px;
+  background-color: var(--color-primary-accent);
+  color: var(--color-text-on-primary);
+  padding: 25px; /* Consider --spacing-xlarge */
+  border-radius: 8px; /* Consider --border-radius-medium */
   text-align: center;
 }
 
@@ -31,29 +109,33 @@
   margin: 0;
   font-size: 2.2em;
   font-weight: 600;
-  color: inherit; /* Inherits color from .appHeader (white) */
+  color: var(--color-text-on-primary); /* Explicitly set, though inherit would work if parent color is set */
+}
+
+.mainContent {
+  /* If specific styling is needed for the <main> element that wraps conditional views */
 }
 
 .contentSection { /* Renamed from .content-section */
-  background-color: #e6f7ff;
-  padding: 20px;
-  border-radius: 8px;
-  border: 1px solid #b3e0f2;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  background-color: var(--color-background-content);
+  padding: 20px; /* Consider --spacing-large */
+  border-radius: 8px; /* Consider --border-radius-medium */
+  border: 1px solid var(--color-border);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Consider --shadow-small */
 }
 
 /* Was: .contentSection h2 - now a dedicated class */
 .contentSectionTitle {
   margin-top: 0;
-  margin-bottom: 15px;
-  color: #005f73;
+  margin-bottom: 15px; /* Consider --spacing-medium */
+  color: var(--color-primary-accent); /* Changed from #005f73 */
   font-size: 1.6em;
 }
 
 /* Was: .contentSection p - now a dedicated class */
 .contentSectionParagraph {
-  color: #334e68;
-  margin-bottom: 15px;
+  color: var(--color-text-primary); /* Changed from #334e68 */
+  margin-bottom: 15px; /* Consider --spacing-medium */
   font-size: 1.05em;
   line-height: 1.5;
 }
@@ -61,10 +143,10 @@
 /* Utility classes */
 .actionButton { /* Renamed from .action-button */
   display: inline-block;
-  background-color: #007bff;
-  color: white;
-  padding: 12px 20px;
-  border-radius: 6px;
+  background-color: var(--color-primary-accent);
+  color: var(--color-text-on-primary);
+  padding: 12px 20px; /* Consider --spacing-small --spacing-medium */
+  border-radius: 6px; /* Consider --border-radius-small */
   text-decoration: none;
   font-weight: bold;
   cursor: pointer;
@@ -73,7 +155,7 @@
 }
 
 .actionButton:hover, .actionButton:focus-visible {
-  background-color: #0056b3;
+  background-color: var(--color-secondary-accent);
   transform: translateY(-1px);
 }
 
@@ -82,21 +164,21 @@
 }
 
 .actionButton:disabled {
-  background-color: #cccccc;
+  background-color: var(--color-button-disabled-bg);
   cursor: not-allowed;
 }
 
 .secondaryButton { /* Renamed from .secondary-button */
-  background-color: #6c757d;
-  color: white;
-  padding: 10px 18px;
-  border-radius: 6px;
+  background-color: var(--color-secondary-accent); /* Or a different variable like --color-button-secondary-bg */
+  color: var(--color-text-on-secondary);
+  padding: 10px 18px; /* Consider --spacing-xsmall --spacing-small */
+  border-radius: 6px; /* Consider --border-radius-small */
   border:none;
   cursor:pointer;
 }
 
 .secondaryButton:hover, .secondaryButton:focus-visible {
-  background-color: #5a6268;
+  background-color: var(--color-primary-accent); /* Example: darken effect or use a specific hover variable */
 }
 
 /* Responsive adjustments - Global ones or those related to App structure */
@@ -107,6 +189,19 @@
   .appContainer {
     padding: 20px;
     gap: 20px;
+  }
+  .topBar {
+    padding: 5px; /* Adjust for mobile */
+    margin-bottom: 5px;
+  }
+  .navBar {
+    padding: 8px 0;
+    margin-bottom: 15px;
+    gap: 5px;
+  }
+  .navButton, .navButtonActive {
+    padding: 6px 10px;
+    font-size: 0.9em;
   }
   .appHeader {
     padding: 20px;

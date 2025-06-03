@@ -6,25 +6,25 @@
 }
 
 .heading { /* Was .aiTutorContainer h3 */
-  color: #004c5d;
+  color: var(--color-primary-accent); /* Changed from #004c5d */
   font-size: 1.4em;
   margin-bottom: 5px;
 }
 
 .problemText { /* Renamed from .problem-text */
-  background-color: #f8f9fa;
+  background-color: var(--color-card-background); /* Changed from #f8f9fa */
   padding: 15px;
   border-radius: 6px;
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--color-border); /* Changed from #dee2e6 */
   margin-bottom: 15px;
   line-height: 1.6;
 }
 
 .workspaceContainer { /* Renamed from .workspace-container */
-  border: 1px solid #b3e0f2;
+  border: 1px solid var(--color-border); /* Changed from #b3e0f2 */
   border-radius: 8px;
   padding: 15px;
-  background-color: #f0f8ff;
+  background-color: var(--color-background-content); /* Changed from #f0f8ff */
   display: flex;
   flex-direction: column;
   gap: 15px;
@@ -33,16 +33,16 @@
 .subHeading { /* Was .workspaceContainer h4 */
   margin-top: 0;
   margin-bottom: 10px;
-  color: #005f73;
+  color: var(--color-primary-accent); /* Changed from #005f73 */
 }
 
 .solutionInputArea textarea { /* Renamed from .solution-input-area textarea */
-  width: calc(100% - 20px);
+  width: calc(100% - 20px); /* Consider using CSS variables for padding/margins if this becomes complex */
   padding: 10px;
   border-radius: 6px;
-  border: 1px solid #add8e6;
-  font-family: inherit;
-  font-size: 1em;
+  border: 1px solid var(--color-border); /* Changed from #add8e6 */
+  font-family: inherit; /* Should inherit from body/app styles */
+  font-size: 1em; /* Should inherit or use a variable */
   min-height: 100px;
 }
 
@@ -54,7 +54,7 @@
 
 .drawingArea label { /* Nested selectors */
   font-weight: bold;
-  color: #334e68;
+  color: var(--color-text-primary); /* Changed from #334e68 */
 }
 
 /* ID selectors like #drawing-canvas cannot be part of CSS modules directly.
@@ -66,11 +66,11 @@
    Let's convert it to a class: .drawingCanvas
 */
 .drawingCanvas { /* Converted from #drawing-canvas */
-  border: 1px dashed #79cdf0;
+  border: 1px dashed var(--color-canvas-border); /* Changed from #79cdf0 */
   border-radius: 6px;
   cursor: crosshair;
   touch-action: none;
-  background-color: #ffffff;
+  background-color: var(--color-canvas-background); /* Explicitly white, as defined in :root */
 }
 
 .controlsArea { /* Renamed from .controls-area */
@@ -95,22 +95,23 @@
 }
 
 .hintArea {
-  background-color: #fff3cd;
-  border: 1px solid #ffeeba;
-  color: #856404;
+  background-color: var(--color-hint-background); /* Using existing variable from :root */
+  border: 1px solid var(--color-border); /* Or a specific hint border color variable */
+  color: var(--color-hint-text); /* Using existing variable from :root */
 }
 
 .feedbackArea {
-  background-color: #d4edda;
-  border: 1px solid #c3e6cb;
-  color: #155724;
+  background-color: var(--color-feedback-background); /* Using existing variable from :root */
+  border: 1px solid var(--color-border);  /* Or a specific feedback border color variable */
+  color: var(--color-feedback-text); /* Using existing variable from :root */
 }
 
 .feedbackArea pre { /* Nested selector */
   white-space: pre-wrap;
   word-wrap: break-word;
-  font-family: inherit;
-  font-size: 0.95em;
+  font-family: inherit; /* Ensure this inherits from a base style or variable */
+  font-size: 0.95em; /* Consider a variable for font sizes */
+  color: var(--color-feedback-text); /* Ensure pre text also uses the theme color */
 }
 
 /* Responsive adjustments for PersonalizedAITutor */

@@ -1,0 +1,24 @@
+/* In ModeSwitcher.module.css */
+.modeSwitcherContainer {
+  padding: 5px; /* Consider --spacing-xsmall */
+  background-color: var(--color-card-background); /* Was #f0f0f0 */
+  display: inline-block; /* Or flex, depending on desired layout in App */
+  border-radius: 4px; /* Consider --border-radius-small */
+  margin: 5px; /* Consider --spacing-xsmall */
+  border: 1px solid var(--color-border); /* Added border */
+}
+
+.modeLabel {
+  margin-right: 8px; /* Consider --spacing-small */
+  font-size: 0.9em;
+  color: var(--color-text-primary); /* Added text color */
+}
+
+.modeSelect {
+  padding: 4px 8px; /* Consider --spacing-xsmall --spacing-small */
+  border-radius: 4px; /* Consider --border-radius-small */
+  border: 1px solid var(--color-border); /* Was #ccc */
+  font-size: 0.9em;
+  background-color: var(--color-canvas-background); /* Ensuring select background is distinct if needed */
+  color: var(--color-text-primary); /* Ensuring select text color */
+}
