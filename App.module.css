@@ -21,14 +21,15 @@
 .appWrapper { /* Renamed from .app-wrapper for camelCase convention */
   padding: 20px; /* This could be a variable too, e.g., --spacing-large */
   display: flex;
-  justify-content: center;
+  flex-direction: column; /* Changed to column to stack topBar and appContainer correctly */
+  align-items: center; /* Center children like topBar and appContainer */
+  /* justify-content: center; This might not be needed if align-items works for centering column children */
 }
 
 .appContainer { /* Renamed from .app-container */
   width: 100%;
   max-width: 1000px;
-  margin: 0 auto;
-  /* background-color: #FFFFFF; Main page background will be on body or html directly if needed, or appWrapper if it's the outermost visible layer */
+  /* margin: 0 auto; Centering handled by appWrapper flex settings */
   border-radius: 12px; /* Consider --border-radius-large */
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07); /* Consider --shadow-large */
   display: flex;
@@ -40,16 +41,60 @@
 
 /* New styles for the top bar */
 .topBar {
-  width: 100%; /* Occupy full width of the appWrapper's flex context if appWrapper is not full screen width */
+  width: 100%;
   max-width: 1000px; /* Match appContainer max-width */
-  margin: 0 auto; /* Center it like appContainer */
+  /* margin: 0 auto; Centering handled by appWrapper flex settings */
   padding: 5px 10px;
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  background-color: var(--color-background-main); /* Use main background, or could be a specific top bar color */
-  /* border-bottom: 1px solid var(--color-border); /* Optional: if a separator is desired */
+  background-color: var(--color-background-main);
+  /* border-bottom: 1px solid var(--color-border); */
+  margin-bottom: 10px; /* Space between topBar and navBar or appHeader if navBar is inside header */
 }
+
+.navBar {
+  display: flex;
+  justify-content: center; /* Center the nav buttons */
+  gap: 10px;
+  padding: 10px 0;
+  background-color: var(--color-background-content);
+  border-top: 1px solid var(--color-border); /* Added top border */
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 20px; /* Space before content sections */
+  width: 100%;
+  max-width: 1000px; /* Match appContainer max-width */
+  /* margin-left: auto; Centering handled by appWrapper flex settings */
+  /* margin-right: auto; */
+}
+
+.navButton {
+  padding: 8px 15px;
+  font-size: 1em;
+  cursor: pointer;
+  background-color: var(--color-card-background);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.navButton:hover {
+  background-color: var(--color-secondary-accent);
+  color: var(--color-text-on-secondary);
+}
+
+.navButtonActive {
+  padding: 8px 15px;
+  font-size: 1em;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.2s, color 0.2s;
+  background-color: var(--color-primary-accent);
+  color: var(--color-text-on-primary);
+  border: 1px solid var(--color-primary-accent);
+}
+
 
 .appHeader { /* Renamed from .app-header */
   background-color: var(--color-primary-accent);
@@ -65,6 +110,10 @@
   font-size: 2.2em;
   font-weight: 600;
   color: var(--color-text-on-primary); /* Explicitly set, though inherit would work if parent color is set */
+}
+
+.mainContent {
+  /* If specific styling is needed for the <main> element that wraps conditional views */
 }
 
 .contentSection { /* Renamed from .content-section */
@@ -140,6 +189,19 @@
   .appContainer {
     padding: 20px;
     gap: 20px;
+  }
+  .topBar {
+    padding: 5px; /* Adjust for mobile */
+    margin-bottom: 5px;
+  }
+  .navBar {
+    padding: 8px 0;
+    margin-bottom: 15px;
+    gap: 5px;
+  }
+  .navButton, .navButtonActive {
+    padding: 6px 10px;
+    font-size: 0.9em;
   }
   .appHeader {
     padding: 20px;

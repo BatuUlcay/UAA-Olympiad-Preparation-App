@@ -8,11 +8,13 @@ import appStyles from './App.module.css';
 import tutorStyles from './PersonalizedAITutor.module.css';
 import progressStyles from './ProgressFeedback.module.css';
 import ModeSwitcher from './ModeSwitcher'; // Import ModeSwitcher
+import problemsData from './problems.json'; // Import problems from JSON
+import ProblemSetViewer from './ProblemSetViewer'; // Import ProblemSetViewer
 
 // Problem Data (taken from the provided PDF)
-const problems = [
-  {
-    id: 1,
+// const problems = [ // This will be removed
+//   {
+//     id: 1,
     title: "HMMT Feb 2025 - Guts Round, Problem 1",
     text: "Call a 9-digit number a cassowary if it uses each of the digits 1 through 9 exactly once. Compute the number of cassowaries that are prime.",
     answer: "0",
@@ -103,6 +105,9 @@ const problems = [
   }
 ];
 
+// Use the imported data
+const problems: Problem[] = problemsData;
+
 interface Problem {
   id: number;
   title: string;
@@ -118,6 +123,8 @@ interface Problem {
 
 // Define AppMode type
 type AppMode = 'math' | 'cs' | 'physics' | 'bio' | 'chem';
+// Define AppView type
+type AppView = 'tutor' | 'progress' | 'problemSets';
 
 // Theme palettes definition
 const themes = {
@@ -219,8 +226,13 @@ const themes = {
  * request hints, and submit their solutions for feedback from an AI tutor (Gemini API).
  * It manages state for the current problem, user inputs, hints, and AI-generated feedback.
  */
-const PersonalizedAITutor: React.FC = () => {
-  const [currentProblem, setCurrentProblem] = useState<Problem>(problems[0]);
+interface PersonalizedAITutorProps {
+  problems: Problem[];
+  selectedProblemId: number | null; // Changed from optional to allow null for explicit "no selection yet"
+}
+
+const PersonalizedAITutor: React.FC<PersonalizedAITutorProps> = ({ problems: problemsProp, selectedProblemId }) => {
+  const [currentProblem, setCurrentProblem] = useState<Problem | null>(null);
   const [userTextSolution, setUserTextSolution] = useState<string>("");
   const [drawingDataUrl, setDrawingDataUrl] = useState<string | null>(null);
   const [hintText, setHintText] = useState<string>("");
@@ -234,6 +246,46 @@ const PersonalizedAITutor: React.FC = () => {
 
   const ai = useRef<GoogleGenAI | null>(null);
 
+  const getCanvasContext = useCallback(() => {
+    const canvas = canvasRef.current;
+    return canvas ? canvas.getContext('2d') : null;
+  }, []); // getCanvasContext has canvasRef in its closure, but canvasRef itself doesn't change.
+
+  /**
+   * @summary Effect to load the selected problem or default to the first problem.
+   * Also resets component state when the problem changes.
+   */
+  useEffect(() => {
+    let problemToLoad: Problem | undefined | null = null;
+    if (selectedProblemId !== null && problemsProp && problemsProp.length > 0) {
+      problemToLoad = problemsProp.find(p => p.id === selectedProblemId);
+    }
+
+    // Fallback to first problem if selectedId is null or not found, and problems exist
+    if (!problemToLoad && problemsProp && problemsProp.length > 0) {
+      problemToLoad = problemsProp[0];
+    }
+
+    if (problemToLoad) {
+      setCurrentProblem(problemToLoad);
+      // Reset internal state
+      setUserTextSolution("");
+      setDrawingDataUrl(null);
+      setHintText("");
+      setCurrentHintIndex(-1);
+      setFeedbackText("");
+
+      const ctx = getCanvasContext();
+      if (ctx && canvasRef.current) {
+          ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+      }
+    } else {
+      // Handle case where no problems are available at all (e.g. problemsProp is empty)
+      setCurrentProblem(null);
+    }
+  }, [selectedProblemId, problemsProp, getCanvasContext]); // Added getCanvasContext to dependencies
+
+
   /**
    * @summary Initializes the GoogleGenAI client.
    * @effect Creates a new GoogleGenAI instance if API_KEY is available in environment variables.
@@ -246,14 +298,12 @@ const PersonalizedAITutor: React.FC = () => {
       ai.current = new GoogleGenAI({ apiKey });
     } else {
       console.error("VITE_GEMINI_API_KEY environment variable not set. AI features will be disabled.");
-      setFeedbackText("AI Tutor is currently unavailable: API Key not configured.");
+      if (currentProblem) { // Only set feedback if a problem is loaded, to avoid error messages over no problem
+        setFeedbackText("AI Tutor is currently unavailable: API Key not configured.");
+      }
     }
-  }, []);
+  }, [currentProblem]); // Re-check if currentProblem changes, though API key is global
   
-  const getCanvasContext = useCallback(() => {
-    const canvas = canvasRef.current;
-    return canvas ? canvas.getContext('2d') : null;
-  }, []);
 
   /**
    * @summary Handles the start of a drawing action on the canvas.
@@ -434,13 +484,18 @@ Provide constructive criticism, highlight strong points, and suggest areas for i
         canvas.width = rect ? rect.width : 300; 
         canvas.height = 200; 
     }
-  }, []);
+  }, [currentProblem]); // Re-run if currentProblem changes, in case canvas needs reset for new problem context.
 
+
+  if (!currentProblem) {
+    // Render a loading state or a message if no problem is loaded
+    return <div className={tutorStyles.aiTutorContainer}><p>Loading problem...</p></div>;
+  }
 
   return (
     <div className={tutorStyles.aiTutorContainer}>
-      <h3 className={tutorStyles.heading}>{currentProblem.title}</h3> {/* Assuming .heading or similar for h3 if specific styles applied beyond tag */ }
-      <p className={tutorStyles.problemText} role="document" aria-live="polite">{currentProblem.text}</p>
+      <h3 className={tutorStyles.heading}>{currentProblem?.title}</h3>
+      <p className={tutorStyles.problemText} role="document" aria-live="polite">{currentProblem?.text}</p>
       
       <div className={tutorStyles.workspaceContainer}>
         <h4 className={tutorStyles.subHeading}>Your Workspace</h4> {/* Assuming .subHeading or similar for h4 */ }
@@ -771,6 +826,10 @@ Be very positive and motivational. Structure your feedback clearly.`;
  */
 const App: React.FC = () => {
   const [currentMode, setCurrentMode] = useState<AppMode>('math');
+  const [activeView, setActiveView] = useState<AppView>('tutor');
+  const [selectedProblemIdForTutor, setSelectedProblemIdForTutor] = useState<number | null>(
+    problems && problems.length > 0 ? problems[0].id : null // Default to first problem's ID
+  );
 
   useEffect(() => {
     const activeTheme = themes[currentMode];
@@ -789,31 +848,76 @@ const App: React.FC = () => {
         </div>
         <div className={appStyles.appContainer} role="main">
           <header className={appStyles.appHeader} role="banner">
-            {/* The (Mode: {currentMode}) part can be removed once the ModeSwitcher is integrated and visually indicates the mode */}
             <h1 className={appStyles.appHeaderTitle}>Olympiad Prep AI Assistant</h1>
           </header>
-          
-          <section className={appStyles.contentSection} id="ai-tutor-section" aria-labelledby="ai-tutor-heading">
-            <h2 className={appStyles.contentSectionTitle} id="ai-tutor-heading">Personalized AI Tutor</h2>
-            <PersonalizedAITutor />
-          </section>
 
-          <section className={appStyles.contentSection} id="olympiad-events-section" aria-labelledby="olympiad-events-heading">
-            <h2 className={appStyles.contentSectionTitle} id="olympiad-events-heading">Upcoming Olympiads</h2>
-            <p className={appStyles.contentSectionParagraph}>Discover local and national Olympiad events. Sign up and track your participation. (Event data will be mocked initially).</p>
+          <nav className={appStyles.navBar}>
             <button 
-              className={appStyles.actionButton}
-              onClick={() => alert('Event Sign-up feature is coming soon!')}
-              aria-describedby="olympiad-events-section"
+              onClick={() => {
+                setActiveView('tutor');
+                // If selectedProblemIdForTutor is null (e.g. app just loaded, went to other tabs first), then set to first problem.
+                if (selectedProblemIdForTutor === null && problems && problems.length > 0) {
+                  setSelectedProblemIdForTutor(problems[0].id);
+                }
+              }}
+              className={activeView === 'tutor' ? appStyles.navButtonActive : appStyles.navButton}
             >
-              Browse Events
+              AI Tutor
             </button>
-          </section>
+            <button
+              onClick={() => setActiveView('problemSets')}
+              className={activeView === 'problemSets' ? appStyles.navButtonActive : appStyles.navButton}
+            >
+              Problem Sets
+            </button>
+            <button
+              onClick={() => setActiveView('progress')}
+              className={activeView === 'progress' ? appStyles.navButtonActive : appStyles.navButton}
+            >
+              My Progress
+            </button>
+          </nav>
 
-          <section className={appStyles.contentSection} id="feedback-section" aria-labelledby="feedback-heading">
-            <h2 className={appStyles.contentSectionTitle} id="feedback-heading">My Progress &amp; Feedback</h2>
-            <ProgressFeedback />
-          </section>
+          <main className={appStyles.mainContent}>
+            {activeView === 'tutor' && (
+              <section className={appStyles.contentSection} id="ai-tutor-section" aria-labelledby="ai-tutor-heading">
+                <h2 id="ai-tutor-heading" className={appStyles.contentSectionTitle}>Personalized AI Tutor</h2>
+                <PersonalizedAITutor
+                  problems={problems}
+                  selectedProblemId={selectedProblemIdForTutor}
+                />
+              </section>
+            )}
+            {activeView === 'problemSets' && (
+              <ProblemSetViewer
+                problems={problems}
+                onSelectProblem={(problemId: number) => {
+                  setSelectedProblemIdForTutor(problemId);
+                  setActiveView('tutor');
+                }}
+              />
+            )}
+            {activeView === 'progress' && (
+              <section className={appStyles.contentSection} id="feedback-section" aria-labelledby="feedback-heading">
+                <h2 id="feedback-heading" className={appStyles.contentSectionTitle}>My Progress &amp; Feedback</h2>
+                <ProgressFeedback />
+              </section>
+            )}
+             {/* Placeholder for Olympiad Events section - can be integrated as another view if needed */}
+            {activeView === 'tutor' && ( /* Or some other condition for when to show this */
+              <section className={appStyles.contentSection} id="olympiad-events-section" aria-labelledby="olympiad-events-heading">
+                <h2 className={appStyles.contentSectionTitle} id="olympiad-events-heading">Upcoming Olympiads</h2>
+                <p className={appStyles.contentSectionParagraph}>Discover local and national Olympiad events. Sign up and track your participation. (Event data will be mocked initially).</p>
+                <button
+                  className={appStyles.actionButton}
+                  onClick={() => alert('Event Sign-up feature is coming soon!')}
+                  aria-describedby="olympiad-events-section"
+                >
+                  Browse Events
+                </button>
+              </section>
+            )}
+          </main>
         </div>
       </div>
     </>

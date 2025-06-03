@@ -1,0 +1,98 @@
+/* In ProblemSetViewer.module.css */
+.viewerContainer {
+  padding: 20px;
+  background-color: var(--color-background-content); /* Use theme variable */
+  color: var(--color-text-primary); /* Use theme variable */
+}
+
+.filterControls {
+  display: flex;
+  gap: 20px; /* Space between filter groups */
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: var(--color-background-main); /* Themed background */
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  flex-wrap: wrap; /* Allow filters to wrap on smaller screens */
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column; /* Stack label on top of select */
+  gap: 5px; /* Space between label and select */
+}
+
+.filterLabel {
+  font-size: 0.9em;
+  font-weight: bold;
+  color: var(--color-text-primary);
+}
+
+.filterSelect {
+  padding: 8px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-card-background); /* Themed select background */
+  color: var(--color-text-primary); /* Themed select text color */
+  min-width: 200px; /* Give select boxes some width */
+}
+
+.problemList {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Space between problem items */
+}
+
+.problemItem {
+  padding: 15px; /* Increased padding */
+  border: 1px solid var(--color-border); /* Use theme variable */
+  border-radius: 6px; /* Slightly more rounded */
+  cursor: pointer;
+  background-color: var(--color-card-background); /* Use theme variable */
+  transition: border-color 0.2s ease, box-shadow 0.2s ease; /* Smooth transition */
+}
+
+.problemItem:hover,
+.problemItem:focus { /* Added focus for keyboard navigation */
+  border-color: var(--color-primary-accent); /* Use theme variable */
+  box-shadow: 0 0 8px var(--color-primary-accent); /* Slightly larger shadow on hover/focus */
+  outline: none; /* Remove default focus outline if custom is good enough */
+}
+
+.problemTitle {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1.2em; /* Larger title */
+  color: var(--color-primary-accent); /* Title uses accent color */
+}
+
+.problemMeta {
+  display: flex;
+  flex-wrap: wrap; /* Allow meta items to wrap on smaller screens */
+  gap: 15px; /* Space between meta items */
+  font-size: 0.9em;
+  color: var(--color-text-primary); /* Ensure meta text uses primary text color */
+  opacity: 0.85; /* Slightly muted meta text */
+}
+
+.metaItem {
+  background-color: var(--color-background-main); /* Use main bg for a subtle chip effect */
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+}
+
+.metaItem strong {
+    color: var(--color-primary-accent); /* Make strong text within meta items use accent color */
+}
+
+/* Styles for problem snippet if added */
+/*
+.problemSnippet {
+  font-size: 0.9em;
+  margin-top: 10px;
+  color: var(--color-text-secondary); // Assuming a secondary text color variable
+  opacity: 0.9;
+}
+*/
